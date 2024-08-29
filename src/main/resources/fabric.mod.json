@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "gachamachines",
+	"version": "${version}",
+	"name": "Gacha Machines",
+	"description": "Turning Minecraft into Genshin since 2024",
+	"authors": [
+		"AshyBoxy",
+		"Dogtor Bloo"
+	],
+	"contact": {
+		"homepage": "https://github.com/AshyBoxy/gachamachines",
+		"sources": "https://github.com/AshyBoxy/gachamachines"
+	},
+	"license": "CC-BY-NC-SA-4.0",
+	"icon": "assets/gachamachines/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"xyz.ashyboxy.mc.gachamachines.GachaMachines"
+		],
+		"client": [
+			"xyz.ashyboxy.mc.gachamachines.GachaMachinesClient"
+		],
+		"fabric-datagen": [
+			"xyz.ashyboxy.mc.gachamachines.GachaMachinesDataGenerator"
+		]
+	},
+	"mixins": [
+		"gachamachines.mixins.json",
+		{
+			"config": "gachamachines.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.3",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {}
+}

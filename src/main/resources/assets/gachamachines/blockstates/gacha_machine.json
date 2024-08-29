@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "": {
+            "model": "gachamachines:block/gacha_machine"
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "required": true,
+    "package": "xyz.ashyboxy.mc.gachamachines.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "ExampleMixin",
+        "HopperBlockEntityMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+	}
+}
