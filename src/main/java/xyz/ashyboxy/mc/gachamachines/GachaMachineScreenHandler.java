@@ -5,14 +5,27 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import org.jetbrains.annotations.Nullable;
 
 public class GachaMachineScreenHandler extends ScreenHandler {
-    private final Inventory inventory;
+    public static final int ROLL_BUTTON = 0;
 
-    public GachaMachineScreenHandler(int syncId, PlayerInventory playerInventory) {
+    @Nullable private GachaMachineBlockEntity blockEntity = null;
+    private final Inventory inventory;
+    private int currencyNeeded;
+
+    public GachaMachineScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new SimpleInventory(5));
+        currencyNeeded = buf.readInt();
+    }
+
+    public GachaMachineScreenHandler(int syncId, PlayerInventory playerInventory, GachaMachineBlockEntity blockEntity) {
+        this(syncId, playerInventory, (Inventory) blockEntity);
+        this.blockEntity = blockEntity;
+        currencyNeeded = blockEntity.getCurrencyNeeded();
     }
 
     public GachaMachineScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
@@ -46,6 +59,19 @@ public class GachaMachineScreenHandler extends ScreenHandler {
         }
     }
 
+    public int getCurrencyNeeded() {
+        return currencyNeeded;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    @Override
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        if (id == ROLL_BUTTON) if (blockEntity != null) blockEntity.createOutputInSelf();
+        return false;
+    }
 
     // TODO: implement this
     @Override

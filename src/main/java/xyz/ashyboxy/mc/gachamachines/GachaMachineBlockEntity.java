@@ -1,5 +1,6 @@
 package xyz.ashyboxy.mc.gachamachines;
 
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -11,17 +12,19 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 // TODO: this should probably implement SidedInventory instead of mixining into HopperBlockEntity
-public class GachaMachineBlockEntity extends BlockEntity implements Inventory, NamedScreenHandlerFactory {
+public class GachaMachineBlockEntity extends BlockEntity implements Inventory, ExtendedScreenHandlerFactory {
     public static final int CURRENCY_SLOT = 0;
 
     //    ItemStack storedCurrency = ItemStack.EMPTY;
@@ -83,6 +86,16 @@ public class GachaMachineBlockEntity extends BlockEntity implements Inventory, N
         storedCurrency.decrement(currencyNeeded);
         markDirty();
         return new ItemStack(output);
+    }
+
+    public boolean createOutputInSelf() {
+        for (int i = 1 ; i < inventory.size(); i++)
+            if (inventory.get(i).isEmpty()) {
+                inventory.set(i, createOutput());
+                return true;
+            }
+
+        return false;
     }
 
     @Override
@@ -166,5 +179,10 @@ public class GachaMachineBlockEntity extends BlockEntity implements Inventory, N
     protected void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, inventory);
         super.writeNbt(nbt);
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeInt(currencyNeeded);
     }
 }
