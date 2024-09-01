@@ -1,3 +1,11 @@
 {
-    "block.gachamachines.gacha_machine": "Gacha Machine"
+    "itemGroup.gacha_machines":  "Gacha Machines",
+    "block.gachamachines.gacha_machine": "Gacha Machine",
+    "item.gachamachines.red_capsule": "Red Capsule",
+    "item.gachamachines.green_capsule": "Green Capsule",
+    "item.gachamachines.yellow_capsule": "Yellow Capsule",
+    "item.gachamachines.iron_capsule": "Iron Capsule",
+    "item.gachamachines.gold_capsule": "Gold Capsule",
+    "item.gachamachines.diamond_capsule": "Diamond Capsule",
+    "item.gachamachines.emerald_capsule": "Emerald Capsule"
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -57,7 +58,7 @@ public class GachaMachineScreen extends HandledScreen<GachaMachineScreenHandler>
         private final int texY;
 
         public ButtonWidget(int x, int y, int texX, int texY, int width, int height, int id) {
-            super(x, y, width, height, Text.literal("Roll"));
+            super(x, y, width, height, ScreenTexts.EMPTY);
             this.id = id;
             this.texX = texX;
             this.texY = texY;
@@ -80,7 +81,5 @@ public class GachaMachineScreen extends HandledScreen<GachaMachineScreenHandler>
             if (!this.active) eTexY = texY + this.height + 4;
             context.drawTexture(GachaMachineScreen.TEXTURE, getX(), getY(), texX, eTexY, getWidth(), getHeight());
         }
-
-
     }
 }

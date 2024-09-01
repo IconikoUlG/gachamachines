@@ -33,7 +33,7 @@ public class GachaMachineBlockEntity extends BlockEntity implements Inventory, E
     // TODO: dataify
     private int currencyNeeded = 4;
     private Ingredient currencyIngredient = Ingredient.ofItems(Items.EMERALD);
-    private Item output = Items.DIRT;
+    private Item output = GachaItems.EMERALD_CAPSULE;
 
     public GachaMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
