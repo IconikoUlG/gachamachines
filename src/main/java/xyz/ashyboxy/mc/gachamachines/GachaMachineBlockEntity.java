@@ -6,183 +6,85 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
-// TODO: this should probably implement SidedInventory instead of mixining into HopperBlockEntity
-public class GachaMachineBlockEntity extends BlockEntity implements Inventory, ExtendedScreenHandlerFactory {
+public abstract class GachaMachineBlockEntity extends BlockEntity implements SidedInventory, ExtendedScreenHandlerFactory {
     public static final int CURRENCY_SLOT = 0;
-
-    //    ItemStack storedCurrency = ItemStack.EMPTY;
-    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
-
-    // TODO: dataify
-    private int currencyNeeded = 4;
-    private Ingredient currencyIngredient = Ingredient.ofItems(Items.EMERALD);
-    private Item output = GachaItems.EMERALD_CAPSULE;
 
     public GachaMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
-    public GachaMachineBlockEntity(BlockPos pos, BlockState state) {
-        this(GachaMachines.GACHA_MACHINE_BLOCK_ENTITY, pos, state);
-    }
+    // gacha machine
+    public abstract Ingredient getCurrencyIngredient();
 
-    public int getCurrencyNeeded() {
-        return currencyNeeded;
-    }
+    public abstract ItemStack getOutput();
 
-    public Ingredient getCurrencyIngredient() {
-        return currencyIngredient;
-    }
+    public abstract boolean addInput(ItemStack input);
 
-    public Item getOutput() {
-        return output;
-    }
+    public abstract ItemStack createOutput();
 
-    public boolean addInput(ItemStack input) {
-        if (input.isEmpty()) return false;
-        if (!currencyIngredient.test(input)) return false;
-        ItemStack storedCurrency = inventory.get(CURRENCY_SLOT);
-        if (storedCurrency.getCount() >= getMaxCountPerStack()) return false;
+    public abstract boolean createOutputInSelf();
 
-        if (storedCurrency.isEmpty()) {
-            inventory.set(CURRENCY_SLOT, input);
-            markDirty();
-            return true;
-        }
-
-        if (ItemStack.canCombine(storedCurrency, input)) {
-            int count = Math.min(input.getCount(), Math.min(getMaxCountPerStack(), storedCurrency.getMaxCount()) - input.getCount());
-            if (count > 0) {
-                storedCurrency.increment(count);
-                input.decrement(count);
-                markDirty();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public ItemStack createOutput() {
-        ItemStack storedCurrency = inventory.get(CURRENCY_SLOT);
-        if (storedCurrency.getCount() < currencyNeeded) return ItemStack.EMPTY;
-        storedCurrency.decrement(currencyNeeded);
-        markDirty();
-        return new ItemStack(output);
-    }
-
-    public boolean createOutputInSelf() {
-        for (int i = 1 ; i < inventory.size(); i++)
-            if (inventory.get(i).isEmpty()) {
-                inventory.set(i, createOutput());
-                return true;
-            }
-
-        return false;
-    }
+    // inventory (overriden to require subclasses to implement them)
+    // TODO: some of this should be implemented here using a getInventory method
+    @Override
+    public abstract int getMaxCountPerStack();
 
     @Override
-    public int getMaxCountPerStack() {
-        return currencyNeeded;
-    }
+    public abstract boolean isValid(int slot, ItemStack stack);
 
     @Override
-    public boolean isValid(int slot, ItemStack stack) {
-        if (slot == 0) return currencyIngredient.test(stack) && stack.getCount() < getMaxCountPerStack();
-        // TODO: capsule ingredient
-        return true;
-    }
+    public abstract int size();
 
     @Override
-    public int size() {
-        return 5;
-    }
+    public abstract boolean isEmpty();
 
     @Override
-    public boolean isEmpty() {
-        return inventory.stream().allMatch(ItemStack::isEmpty);
-    }
+    public abstract ItemStack getStack(int slot);
 
     @Override
-    public ItemStack getStack(int slot) {
-        return inventory.get(slot);
-    }
+    public abstract ItemStack removeStack(int slot, int amount);
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
-        ItemStack result = Inventories.splitStack(inventory, slot, amount);
-        if (!result.isEmpty()) markDirty();
-        return result;
-    }
+    public abstract ItemStack removeStack(int slot);
 
     @Override
-    public ItemStack removeStack(int slot) {
-        ItemStack result = Inventories.removeStack(inventory, slot);
-        if (!result.isEmpty()) markDirty();
-        return result;
-    }
+    public abstract void setStack(int slot, ItemStack stack);
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
-        if (slot == CURRENCY_SLOT && !currencyIngredient.test(stack)) return;
-        inventory.set(slot, stack);
-        if (stack.getCount() > stack.getMaxCount()) stack.setCount(stack.getMaxCount());
-        if (stack.getCount() > getMaxCountPerStack()) stack.setCount(getMaxCountPerStack());
-        markDirty();
-    }
+    public abstract boolean canPlayerUse(PlayerEntity player);
 
     @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return true;
-    }
+    public abstract void clear();
 
     @Override
-    public void clear() {
-        inventory.clear();
-        markDirty();
-    }
+    public abstract int[] getAvailableSlots(Direction side);
 
+    @Override
+    public abstract boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir);
+
+    @Override
+    public abstract boolean canExtract(int slot, ItemStack stack, Direction dir);
+
+    // screen handler
     @Override
     public Text getDisplayName() {
         return Text.translatable(getCachedState().getBlock().getTranslationKey());
     }
 
     @Override
-    public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new GachaMachineScreenHandler(syncId, playerInventory, this);
-    }
+    public abstract @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player);
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-        Inventories.readNbt(nbt, inventory);
-    }
-
-    @Override
-    protected void writeNbt(NbtCompound nbt) {
-        Inventories.writeNbt(nbt, inventory);
-        super.writeNbt(nbt);
-    }
-
-    @Override
-    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-        buf.writeInt(currencyNeeded);
-    }
+    public abstract void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf);
 }

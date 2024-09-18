@@ -23,6 +23,7 @@ public class GachaMachinesDataGenerator implements DataGeneratorEntrypoint {
 
 		@Override
 		public void generateBlockStateModels(BlockStateModelGenerator generator) {
+			// ideally the gacha machine blockstate should be generated here
 			generator.registerParentedItemModel(GachaItems.GACHA_MACHINE, GachaMachines.id("block/gacha_machine"));
 		}
 

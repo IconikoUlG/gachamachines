@@ -34,7 +34,7 @@ public class GachaMachineScreen extends HandledScreen<GachaMachineScreenHandler>
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
-        rollButton.active = getScreenHandler().getInventory().getStack(GachaMachineBlockEntity.CURRENCY_SLOT).getCount() >= getScreenHandler().getCurrencyNeeded();
+        rollButton.active = getScreenHandler().getInventory().getStack(RealGachaMachineBlockEntity.CURRENCY_SLOT).getCount() >= getScreenHandler().getCurrencyNeeded();
         rollButton.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }

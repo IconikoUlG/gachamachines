@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class GachaMachineScreenHandler extends ScreenHandler {
     public static final int ROLL_BUTTON = 0;
 
-    @Nullable private GachaMachineBlockEntity blockEntity = null;
+    @Nullable private RealGachaMachineBlockEntity blockEntity = null;
     private final Inventory inventory;
     private int currencyNeeded;
 
@@ -22,7 +22,7 @@ public class GachaMachineScreenHandler extends ScreenHandler {
         currencyNeeded = buf.readInt();
     }
 
-    public GachaMachineScreenHandler(int syncId, PlayerInventory playerInventory, GachaMachineBlockEntity blockEntity) {
+    public GachaMachineScreenHandler(int syncId, PlayerInventory playerInventory, RealGachaMachineBlockEntity blockEntity) {
         this(syncId, playerInventory, (Inventory) blockEntity);
         this.blockEntity = blockEntity;
         currencyNeeded = blockEntity.getCurrencyNeeded();

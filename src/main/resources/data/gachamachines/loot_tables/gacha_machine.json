@@ -1,0 +1,32 @@
+{
+    "type":  "gachamachines:gacha_machine",
+    "pools": [
+        {
+            "conditions": [],
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "gachamachines:iron_capsule",
+                    "weight": 6
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "gachamachines:gold_capsule",
+                    "weight": 4
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "gachamachines:diamond_capsule",
+                    "weight": 2
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "gachamachines:emerald_capsule",
+                    "weight": 1
+                }
+            ],
+            "bonus_rolls": 0,
+            "rolls": 1
+        }
+    ]
+}
