@@ -11,24 +11,40 @@ import net.minecraft.loot.LootTable;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.command.LootCommand;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: this should probably implement SidedInventory instead of mixining into HopperBlockEntity
 public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
 
     // TODO: dataify
-    private int currencyNeeded = 4;
-    private Ingredient currencyIngredient = Ingredient.ofItems(Items.EMERALD);
+    private ItemStack currencyItem = new ItemStack(Items.EMERALD,3);
+    private String configuration = "default";
+    private CustomLoot customLoot = null;
+
+    private Ingredient currencyIngredient() {
+        return Ingredient.ofItems(currencyItem.getItem());
+    }
+
+    private int currencyCost() {
+        return currencyItem.getCount();
+    }
 
     public RealGachaMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -39,14 +55,17 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
     }
 
     public int getCurrencyNeeded() {
-        return currencyNeeded;
+        return currencyCost();
     }
 
     public Ingredient getCurrencyIngredient() {
-        return currencyIngredient;
+        return currencyIngredient();
     }
 
     public ItemStack getOutput() {
+        if (customLoot!=null)
+            return customLoot.getRandomItem();
+
         if (!(getWorld() instanceof ServerWorld serverWorld)) return ItemStack.EMPTY;
         LootContextParameterSet parameters = new LootContextParameterSet.Builder(serverWorld)
                 .add(LootContextParameters.ORIGIN, this.getPos().toCenterPos())
@@ -58,12 +77,12 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     public Identifier getLootTableId() {
         // TODO: dataify
-        return GachaMachines.id("gacha_machine");
+        return GachaMachines.id("gacha_machine").withPrefixedPath(configuration+"/");
     }
 
     public boolean addInput(ItemStack input) {
         if (input.isEmpty()) return false;
-        if (!currencyIngredient.test(input)) return false;
+        if (!currencyIngredient().test(input)) return false;
         ItemStack storedCurrency = inventory.get(CURRENCY_SLOT);
         if (storedCurrency.getCount() >= getMaxCountPerStack()) return false;
 
@@ -88,8 +107,8 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     public ItemStack createOutput() {
         ItemStack storedCurrency = inventory.get(CURRENCY_SLOT);
-        if (storedCurrency.getCount() < currencyNeeded) return ItemStack.EMPTY;
-        storedCurrency.decrement(currencyNeeded);
+        if (storedCurrency.getCount() < currencyCost()) return ItemStack.EMPTY;
+        storedCurrency.decrement(currencyCost());
         markDirty();
         return getOutput();
     }
@@ -106,12 +125,12 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     @Override
     public int getMaxCountPerStack() {
-        return currencyNeeded;
+        return currencyCost();
     }
 
     @Override
     public boolean isValid(int slot, ItemStack stack) {
-        if (slot == 0) return currencyIngredient.test(stack) && stack.getCount() < getMaxCountPerStack();
+        if (slot == 0) return currencyIngredient().test(stack) && stack.getCount() < getMaxCountPerStack();
         // TODO: capsule ingredient
         return true;
     }
@@ -147,7 +166,7 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     @Override
     public void setStack(int slot, ItemStack stack) {
-        if (slot == CURRENCY_SLOT && !currencyIngredient.test(stack)) return;
+        if (slot == CURRENCY_SLOT && !currencyIngredient().test(stack)) return;
         inventory.set(slot, stack);
         if (stack.getCount() > stack.getMaxCount()) stack.setCount(stack.getMaxCount());
         if (stack.getCount() > getMaxCountPerStack()) stack.setCount(getMaxCountPerStack());
@@ -175,7 +194,7 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
         if (slot != CURRENCY_SLOT) return false;
-        return currencyIngredient.test(stack);
+        return currencyIngredient().test(stack);
     }
 
     @Override
@@ -192,16 +211,36 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         Inventories.readNbt(nbt, inventory);
+
+        if (nbt.contains("cost", NbtElement.COMPOUND_TYPE))
+            currencyItem = ItemStack.fromNbt(nbt.getCompound("cost"));
+
+        if (nbt.contains("config_id", NbtElement.STRING_TYPE))
+            configuration = nbt.getString("config_id");
+
+        if (nbt.contains("config", NbtElement.COMPOUND_TYPE))
+            customLoot = CustomLoot.fromNbt(nbt.getCompound("config"));
+        else customLoot = null;
     }
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, inventory);
         super.writeNbt(nbt);
+
+        var stackNbt = new NbtCompound();
+        currencyItem.writeNbt(stackNbt);
+        nbt.put("cost", stackNbt);
+
+        nbt.putString("config_id",configuration);
+
+        if (customLoot!=null) {
+            nbt.put("config",customLoot.toNbt());
+        }
     }
 
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-        buf.writeInt(currencyNeeded);
+        buf.writeInt(currencyCost());
     }
 }
