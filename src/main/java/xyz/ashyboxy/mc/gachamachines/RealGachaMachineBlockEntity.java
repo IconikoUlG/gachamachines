@@ -13,6 +13,7 @@ import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.screen.ScreenHandler;
@@ -82,7 +83,7 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     public boolean addInput(ItemStack input) {
         if (input.isEmpty()) return false;
-        if (!currencyIngredient().test(input)) return false;
+        if (!currencyItem.getItem().equals(input.getItem())) return false;
         ItemStack storedCurrency = inventory.get(CURRENCY_SLOT);
         if (storedCurrency.getCount() >= getMaxCountPerStack()) return false;
 
@@ -226,7 +227,6 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
     @Override
     protected void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, inventory);
-        super.writeNbt(nbt);
 
         var stackNbt = new NbtCompound();
         currencyItem.writeNbt(stackNbt);
@@ -237,6 +237,8 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
         if (customLoot!=null) {
             nbt.put("config",customLoot.toNbt());
         }
+
+        super.writeNbt(nbt);
     }
 
     @Override
