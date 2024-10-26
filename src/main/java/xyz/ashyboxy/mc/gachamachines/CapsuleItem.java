@@ -2,6 +2,7 @@ package xyz.ashyboxy.mc.gachamachines;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BundleItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
@@ -10,6 +11,8 @@ import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
@@ -29,7 +32,10 @@ public class CapsuleItem extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        if (world.isClient) return TypedActionResult.pass(user.getStackInHand(hand));
+        if (world.isClient) {
+            user.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 0.5F, 0.6F + user.getWorld().getRandom().nextFloat() * 0.4F);
+            return TypedActionResult.pass(user.getStackInHand(hand));
+        }
         ItemStack capsule = user.getStackInHand(hand);
         List<ItemStack> drops = getDrops(capsule, (ServerWorld) world, user.getPos(), user);
         capsule.decrement(1);

@@ -21,6 +21,7 @@ import net.minecraft.server.command.LootCommand;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -84,6 +85,9 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
     public boolean addInput(ItemStack input) {
         if (input.isEmpty()) return false;
         if (!currencyItem.getItem().equals(input.getItem())) return false;
+
+        //GachaMachines.LOGGER.warn("addInput -> "+input.getItem().getTranslationKey());
+
         ItemStack storedCurrency = inventory.get(CURRENCY_SLOT);
         if (storedCurrency.getCount() >= getMaxCountPerStack()) return false;
 
@@ -167,7 +171,9 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     @Override
     public void setStack(int slot, ItemStack stack) {
-        if (slot == CURRENCY_SLOT && !currencyIngredient().test(stack)) return;
+        if (slot == CURRENCY_SLOT && !currencyIngredient().test(stack)) {
+            return;
+        }
         inventory.set(slot, stack);
         if (stack.getCount() > stack.getMaxCount()) stack.setCount(stack.getMaxCount());
         if (stack.getCount() > getMaxCountPerStack()) stack.setCount(getMaxCountPerStack());
@@ -194,8 +200,11 @@ public class RealGachaMachineBlockEntity extends GachaMachineBlockEntity {
 
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        if (slot != CURRENCY_SLOT) return false;
-        return currencyIngredient().test(stack);
+        boolean bl;
+        if (slot != CURRENCY_SLOT) bl = false;
+        else bl = currencyIngredient().test(stack);
+        //GachaMachines.LOGGER.warn("Slot is "+slot+" and stack is "+stack.getItem().getTranslationKey()+" for ingredients "+currencyIngredient().toJson().getAsString()+" and bl = "+bl);
+        return bl;
     }
 
     @Override
