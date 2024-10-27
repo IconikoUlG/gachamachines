@@ -1,0 +1,24 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "###",
+      "ggg",
+      "#d#"
+    ],
+    "key": {
+      "#": {
+        "item": "minecraft:iron_ingot"
+      },
+      "g": {
+        "item": "minecraft:glass"
+      },
+      "d": {
+        "item": "minecraft:dispenser"
+      }
+    },
+    "result": {
+      "item": "gachamachines:gacha_machine",
+      "count": 1
+    }
+  }
+  

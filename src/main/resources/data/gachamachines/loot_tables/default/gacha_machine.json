@@ -7,17 +7,17 @@
                 {
                     "type": "minecraft:item",
                     "name": "gachamachines:iron_capsule",
-                    "weight": 4
+                    "weight": 6
                 },
                 {
                     "type": "minecraft:item",
                     "name": "gachamachines:gold_capsule",
-                    "weight": 3
+                    "weight": 4
                 },
                 {
                     "type": "minecraft:item",
                     "name": "gachamachines:diamond_capsule",
-                    "weight": 2
+                    "weight": 3
                 },
                 {
                     "type": "minecraft:item",
@@ -28,5 +28,6 @@
             "bonus_rolls": 0,
             "rolls": 1
         }
-    ]
+    ],
+    "random_sequences": "gachamachines:gacha_capsules"
 }

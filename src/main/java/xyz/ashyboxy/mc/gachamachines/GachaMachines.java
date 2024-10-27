@@ -2,10 +2,12 @@ package xyz.ashyboxy.mc.gachamachines;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.MapColor;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -29,7 +31,7 @@ public class GachaMachines implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("Gacha Machines");
 
 	public static final Block GACHA_MACHINE = Registry.register(Registries.BLOCK, id("gacha_machine"),
-			new GachaMachineBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.METAL).nonOpaque()));
+			new GachaMachineBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER).mapColor(MapColor.DIAMOND_BLUE).strength(4f).sounds(BlockSoundGroup.METAL).nonOpaque()));
 	public static final BlockEntityType<RealGachaMachineBlockEntity> GACHA_MACHINE_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, id("gacha_machine"), BlockEntityType.Builder.create(RealGachaMachineBlockEntity::new, GACHA_MACHINE).build(null));
 	public static final BlockEntityType<DummyGachaMachineBlockEntity> DUMMY_GACHA_MACHINE_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, id("gacha_machine_dummy"), BlockEntityType.Builder.create(DummyGachaMachineBlockEntity::new, GACHA_MACHINE).build(null));
 	public static final ScreenHandlerType<GachaMachineScreenHandler> GACHA_MACHINE_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, id("gacha_machine"), new ExtendedScreenHandlerType<>(GachaMachineScreenHandler::new));
