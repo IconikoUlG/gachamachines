@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 
 public class GachaMachines implements ModInitializer {
 	public static final String MOD_ID = "gachamachines";
-    public static final Logger LOGGER = LoggerFactory.getLogger("Gacha Machines");
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static final Block GACHA_MACHINE = Registry.register(Registries.BLOCK, id("gacha_machine"),
 			new GachaMachineBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER).mapColor(MapColor.DIAMOND_BLUE).strength(4f).sounds(BlockSoundGroup.METAL).nonOpaque()));
@@ -54,7 +54,7 @@ public class GachaMachines implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("It's about to be Genshin Impact over here");
+		LOGGER.info("Pls AshyBoxy, don't leave things half-done. -Ultro");
 		GachaItems.init();
 	}
 

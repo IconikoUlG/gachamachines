@@ -76,6 +76,7 @@ public class GachaMachineScreenHandler extends ScreenHandler {
     // TODO: implement this
     @Override
     public ItemStack quickMove(PlayerEntity player, int slot) {
+        //GachaMachines.LOGGER.warn("quickMove() < "+slot);
         return ItemStack.EMPTY;
     }
 
